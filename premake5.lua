@@ -53,7 +53,7 @@ project "foundation-lib"
     targetname "foundation-lib"
     targetdir "bin/%{cfg.buildcfg}"
     files { "src/**.h", "src/**.c" }
-    excludes { "src/test.c" } 
+    excludes { "src/test.c" }
 
 project "test"
     kind "ConsoleApp"
