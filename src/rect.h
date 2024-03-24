@@ -30,7 +30,7 @@ typedef union Rect_Split {
 
 static inline Rect_Split rect_split_left(Rect r, float w, float margin);
 static inline Rect_Split rect_split_right(Rect r, float w, float margin);
-static inline Rect_Split Rect_Splitop(Rect r, float h, float margin);
+static inline Rect_Split rect_split_top(Rect r, float h, float margin);
 static inline Rect_Split rect_split_bottom(Rect r, float h, float margin);
 
 // Dividing
@@ -103,7 +103,7 @@ static inline Rect_Split rect_split_right(Rect r, float w, float margin)
     };
 }
 
-static inline Rect_Split Rect_Splitop(Rect r, float h, float margin)
+static inline Rect_Split rect_split_top(Rect r, float h, float margin)
 {
     return (const Rect_Split) {
         .top = { r.x, r.y, r.w, h },
