@@ -12,6 +12,7 @@ workspace "workspace"
     editAndContinue "Off"
     targetdir "bin"
     location "bin"
+    includedirs "src"
     characterset "MBCS" 
 
 filter "system:windows"
@@ -53,11 +54,10 @@ project "foundation-lib"
     targetname "foundation-lib"
     targetdir "bin/%{cfg.buildcfg}"
     files { "src/**.h", "src/**.c" }
-    excludes { "src/test.c" }
 
 project "test"
     kind "ConsoleApp"
     targetname "test"
-    files { "src/test.c" }
+    files { "test.c" }
     dependson { "foundation-lib" }
     links { "foundation-lib" }
