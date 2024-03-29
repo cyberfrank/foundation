@@ -46,7 +46,7 @@ typedef struct Array_Header
     
 // Pop and retrieve last element of array, if any
 #define array_pop(a) \
-    (array_size(a) > 0 ? (a)[--array_header(a)->size] : 0)
+    ((a)[--array_header(a)->size])
 
 // Clear the array without freeing any memory
 #define array_reset(a) \
