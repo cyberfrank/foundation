@@ -50,7 +50,11 @@ typedef struct Array_Header
 
 // Clear the array without freeing any memory
 #define array_reset(a) \
-    ((a) ? (array_header(a)->size = 0) : 0)
+    (array_reset_to(a, 0))
+
+// Rewind array to size `n` without freeing any memory
+#define array_reset_to(a, n) \
+    ((a) ? (array_header(a)->size = n) : 0)
 
 // Pointer to end of array
 #define array_end(a) \
