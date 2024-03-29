@@ -286,6 +286,8 @@ void poll_async_assets()
         return;
     }
 
+    Pending_Asset *loaded_assets = 0;
+
     os_enter_critical_section(&asset_loader->pending_assets_cs);
     {
         bool all_handled = true;
@@ -296,48 +298,51 @@ void poll_async_assets()
                 all_handled = false;
                 continue;
             }
-
-            if (it->asset_state == ASSET_STATE_HANDLED)
+            if (it->asset_state != ASSET_STATE_HANDLED)
             {
-                continue;
+                // Copy asset to prevent deadlock in case the load callback wants to load more assets
+                array_push(loaded_assets, *it, system_allocator);
+                it->asset_state = ASSET_STATE_HANDLED;
             }
-
-            Asset_Catalog *catalog = it->catalog;
-            Asset_Catalog_Callbacks *callbacks = &catalog->callbacks;
-
-            void *asset = find_asset(it->catalog, it->hash_name);
-            fatal_check(asset != 0);
-
-            if (it->asset_state == ASSET_STATE_VALID)
-            {
-                log_info("Loaded async asset %zu successfully", it->hash_name);
-                if (catalog->no_descriptor)
-                {
-                    memcpy(asset, it->descriptor, catalog->descriptor_size);
-                }
-                else
-                {
-                    callbacks->asset_load_complete(it->descriptor, asset);
-                }
-            }
-            else if (it->asset_state == ASSET_STATE_FAILED)
-            {
-                log_info("Failed to load async asset %zu", it->hash_name);
-                if (catalog->fallback_asset != 0)
-                {
-                    memcpy(asset, catalog->fallback_asset, catalog->asset_size);
-                }
-            }
-
-            it->asset_state = ASSET_STATE_HANDLED;
-            c_free(it->allocator, it->descriptor, catalog->descriptor_size);
-            c_free(it->allocator, it->data, it->size);
         }
-
         if (all_handled)
         {
             array_reset(asset_loader->pending_assets);
         }
     }
     os_leave_critical_section(&asset_loader->pending_assets_cs);
+
+    for (Pending_Asset *it = loaded_assets; it != array_end(loaded_assets); ++it)
+    {
+        Asset_Catalog *catalog = it->catalog;
+        Asset_Catalog_Callbacks *callbacks = &catalog->callbacks;
+
+        void *asset = find_asset(it->catalog, it->hash_name);
+        fatal_check(asset != 0);
+
+        if (it->asset_state == ASSET_STATE_VALID)
+        {
+            log_info("Loaded async asset %zu successfully", it->hash_name);
+            if (catalog->no_descriptor)
+            {
+                memcpy(asset, it->descriptor, catalog->descriptor_size);
+            }
+            else
+            {
+                callbacks->asset_load_complete(it->descriptor, asset);
+            }
+        }
+        else if (it->asset_state == ASSET_STATE_FAILED)
+        {
+            log_info("Failed to load async asset %zu", it->hash_name);
+            if (catalog->fallback_asset != 0)
+            {
+                memcpy(asset, catalog->fallback_asset, catalog->asset_size);
+            }
+        }
+        c_free(it->allocator, it->descriptor, catalog->descriptor_size);
+        c_free(it->allocator, it->data, it->size);
+    }
+
+    array_free(loaded_assets, system_allocator);
 }
