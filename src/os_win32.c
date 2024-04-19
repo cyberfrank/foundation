@@ -507,8 +507,7 @@ void os_find_files_recursive(const char *root, File_Info **files, struct Allocat
         if (file_exclude_filter(&data))
         {
             File_Info info;
-            snprintf(info.name, 64, "%s", data.cFileName);
-            snprintf(info.path, 64, "%s/%s", root, data.cFileName);
+            snprintf(info.path, 260, "%s/%s", root, data.cFileName);
 
             if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
             {

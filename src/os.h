@@ -27,8 +27,7 @@ typedef struct File_Handle {
 } File_Handle;
 
 typedef struct File_Info {
-    char name[64];
-    char path[64];
+    char path[260];
 } File_Info;
 
 typedef void thread_entry_func(void *user_data);
