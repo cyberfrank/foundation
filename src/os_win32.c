@@ -34,8 +34,14 @@ void *os_read_entire_file(const char *path, uint64_t *size, struct Allocator *a)
     void *buffer = c_alloc(a, file_size);
 
     int64_t result = os_read_file(file, buffer, file_size);
-    check(result != -1);
-    check((uint64_t)result == file_size);
+    if (result == -1)
+    {
+        log_error("Failed to read file '%s'", path);
+    }
+    if ((uint64_t)result != file_size)
+    {
+        log_error("Failed to read entire file '%s'", path);
+    }
     *size = file_size;
 
     os_close_file(file);
@@ -52,7 +58,10 @@ void os_write_to_file(const char *path, const uint8_t *data, uint64_t size)
         return;
     }
     bool success = os_write_file(file, data, size);
-    check(success);
+    if (!success)
+    {
+        log_error("Failed to write to file '%s'", path);
+    }
     os_close_file(file);
 }
 

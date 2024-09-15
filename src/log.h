@@ -30,7 +30,7 @@ void log_print(int level, const char *file, uint32_t line, const char *msg, ...)
 #define log_trace(...) log_print(LOG_TRACE, __FILENAME__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) log_print(LOG_FATAL, __FILENAME__, __LINE__, __VA_ARGS__)
 
-#if !defined(NO_CHECKS)
+#if !defined(SHIPPING_BUILD)
     #define check(cond)             do { if(!(cond)) { log_error("Check failed: %s", #cond); } } while(0)
     #define checkf(cond, ...)       do { if(!(cond)) { log_error("Check failed: %s (%s)", #cond, __VA_ARGS__); } } while(0)
     #define fatal_check(cond)       do { if(!(cond)) { log_fatal("Fatal check failed: %s", #cond); } } while(0)

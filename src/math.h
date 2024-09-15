@@ -1,8 +1,7 @@
 #pragma once
 #include "basic.h"
-#include <emmintrin.h>
-#include <immintrin.h>
 #include <math.h>
+#include <immintrin.h>
 #include <string.h>
 
 #define PI 3.14159265f

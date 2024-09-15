@@ -54,10 +54,3 @@ project "foundation-lib"
     targetname "foundation-lib"
     targetdir "bin/%{cfg.buildcfg}"
     files { "src/**.h", "src/**.c" }
-
-project "test"
-    kind "ConsoleApp"
-    targetname "test"
-    files { "test.c" }
-    dependson { "foundation-lib" }
-    links { "foundation-lib" }
