@@ -80,3 +80,14 @@ typedef struct Time_Stamp {
 
 // Graphics resource identifier
 typedef uint32_t gfx_id;
+
+#define INVALID_ASSET_ID 0xffffffffffffffffui64
+
+// Asset identifier
+typedef union Asset_Id {
+    struct {
+        uint32_t index;
+        uint32_t generation;
+    };
+    uint64_t id;
+} Asset_Id;

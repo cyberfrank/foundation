@@ -20,8 +20,6 @@ typedef struct Asset_Catalog_Interface {
     uint64_t asset_size;
     uint64_t descriptor_size;
     bool no_descriptor; // True if the asset and the descriptor are the same type
-    void *placeholder_asset;
-    void *fallback_asset;
     Asset_Catalog_Callbacks callbacks;
 } Asset_Catalog_Interface;
 
@@ -29,30 +27,31 @@ typedef struct Asset_Catalog_Interface {
 Asset_Catalog *make_asset_catalog(uint64_t reserve_count, Asset_Catalog_Interface *i);
 
 // Sets the placeholder asset
-void set_placeholder_asset(Asset_Catalog *catalog, const void *asset);
+void set_placeholder_asset(Asset_Catalog *catalog, Asset_Id asset_id);
 
 // Sets the fallback asset
-void set_fallback_asset(Asset_Catalog *catalog, const void *asset);
+void set_fallback_asset(Asset_Catalog *catalog, Asset_Id asset_id);
 
 // Free catalog and all assets using the `asset_free()` callback
 void free_asset_catalog(Asset_Catalog *catalog);
 
-// Allocates a new asset mapped to `hash_name`
-void *make_asset(Asset_Catalog *catalog, uint64_t hash_name);
+// Free asset mapped to `asset_id`.
+void free_asset(Asset_Catalog *catalog, Asset_Id asset_id);
+
+// Free all assets mapped to `tag`.
+void free_assets_by_tag(Asset_Catalog *catalog, const char *tag);
 
 // Returns the asset mapped to `path` if already allocated, otherwise attempts to load it using the `asset_load()` callback.
+// Optionally allows mapping the asset to the `tag`. The asset's tag will be updated in case an existing asset was bound to a different tag.
 // If `load_async` is true, the loading will be handled on a background thread, and the results need to be polled with `poll_async_assets()`.
-void *find_or_load_asset(Asset_Catalog *catalog, const char *path, bool load_async);
+Asset_Id find_or_load_asset(Asset_Catalog *catalog, const char *path, const char *tag, bool load_async);
 
-// Returns the asset mapped to `hash_name` if already allocated, otherwise allocates a new asset.
-void *find_or_make_asset(Asset_Catalog *catalog, uint64_t hash_name);
+// Returns the asset mapped to `name` if already allocated, otherwise allocates a new asset.
+// Optionally allows mapping the asset to the `tag`. The asset's tag will be updated in case an existing asset was bound to a different tag.
+Asset_Id find_or_make_asset(Asset_Catalog *catalog, const char *name, const char *tag);
 
-// Look up asset mapped to `name`.
-// Same as `find_asset()` but this includes conversion to the hashed name.
-void *find_asset_by_name(Asset_Catalog *catalog, const char *name);
-
-// Look up asset mapped to `hash_name`.
-void *find_asset(Asset_Catalog *catalog, uint64_t hash_name);
+// Get the asset data mapped to `asset_id`. Returns `0` if there's no valid data.
+void *asset_data(Asset_Catalog *catalog, Asset_Id asset_id);
 
 // Poll in-flight assets to check whether they are ready to be added to the asset catalogs on the main thread.
 void poll_async_assets();
