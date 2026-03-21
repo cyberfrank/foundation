@@ -3,6 +3,10 @@
 
 struct Allocator;
 
+enum {
+    FILE_PATH_MAX_LEN = 260,
+};
+
 // Types
 
 typedef struct Critical_Section {
@@ -27,7 +31,7 @@ typedef struct File_Handle {
 } File_Handle;
 
 typedef struct File_Info {
-    char path[260];
+    char path[FILE_PATH_MAX_LEN];
 } File_Info;
 
 typedef void thread_entry_func(void *user_data);

@@ -1,7 +1,8 @@
 #include "log.h"
 #include "os.h"
-#include <stdarg.h>
+#include "sprintf.h"
 #include <stdio.h>
+#include <stdarg.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,10 +67,10 @@ void log_print(int level, const char *file, uint32_t line, const char *msg, ...)
     {
         if (level != LOG_TRACE)
         {
-            offset += snprintf(buffer + offset, LOG_BUFFER_SIZE, "%s %-5s %s:%d: ", time_str, log_level_strings[level], file, line);
+            offset += c_print(buffer + offset, LOG_BUFFER_SIZE, "%s %-5s %s:%d: ", time_str, log_level_strings[level], file, line);
         }
-        offset += vsnprintf(buffer + offset, LOG_BUFFER_SIZE, msg, args);
-        offset += snprintf(buffer + offset, LOG_BUFFER_SIZE, "\n");
+        offset += c_vprint(buffer + offset, LOG_BUFFER_SIZE, msg, args);
+        offset += c_print(buffer + offset, LOG_BUFFER_SIZE, "\n");
     }
     va_end(args);
 

@@ -7,8 +7,8 @@
 #include "atomics.inl"
 #include "log.h"
 #include "string_util.h"
+#include "sprintf.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
@@ -490,15 +490,15 @@ void os_print_stack_trace()
 
 static inline bool file_exclude_filter(const WIN32_FIND_DATA *data)
 {
-    // ignore '.' and '..' directories as well as hidden directories
-    return (data->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == 0 &&
+    // Ignore '.' and '..' directories as well as hidden directories
+    return (data->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == 0 && 
         strncmp(".\0", data->cFileName, 2) && strncmp("..\0", data->cFileName, 3);
 }
 
 void os_find_files_recursive(const char *root, File_Info **files, struct Allocator *a)
 {
-    char search_path[256];
-    snprintf(search_path, 256, "%s/*", root);
+    char search_path[FILE_PATH_MAX_LEN];
+    c_print(search_path, FILE_PATH_MAX_LEN, "%s/*", root);
 
     WIN32_FIND_DATA data;
     HANDLE hFind = FindFirstFile(search_path, &data);
@@ -507,7 +507,7 @@ void os_find_files_recursive(const char *root, File_Info **files, struct Allocat
         if (file_exclude_filter(&data))
         {
             File_Info info;
-            snprintf(info.path, 260, "%s/%s", root, data.cFileName);
+            c_print(info.path, FILE_PATH_MAX_LEN, "%s/%s", root, data.cFileName);
 
             if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
             {
@@ -559,13 +559,13 @@ void os_set_clipboard_text_utf8(struct Allocator *a, String8 data)
 String8 os_open_file_dialog(struct Allocator *a)
 {
     OPENFILENAME ofn;
-    char sz[260];
+    char sz[FILE_PATH_MAX_LEN];
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = 0;
     ofn.lpstrFile = sz;
     ofn.lpstrFile[0] = '\0';
-    ofn.nMaxFile = 260;
+    ofn.nMaxFile = FILE_PATH_MAX_LEN;
     ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = NULL;
@@ -591,13 +591,13 @@ String8 os_open_file_dialog(struct Allocator *a)
 String8 os_save_file_dialog(struct Allocator *a)
 {
     OPENFILENAME ofn;
-    char sz[260];
+    char sz[FILE_PATH_MAX_LEN];
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = 0;
 	ofn.lpstrFile = sz;
 	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = 256;
+	ofn.nMaxFile = FILE_PATH_MAX_LEN;
 	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;

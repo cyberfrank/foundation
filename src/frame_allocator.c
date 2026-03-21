@@ -1,7 +1,7 @@
 #include "frame_allocator.h"
 #include "allocator.h"
+#include "sprintf.h"
 #include <string.h>
-#include <stdio.h>
 #include <stdarg.h>
 
 typedef struct Frame_Allocator_Block
@@ -136,21 +136,23 @@ void frame_allocator_tick()
 
 char *frame_vprintf(const char *format, va_list args)
 {
-    va_list args2;
-    va_copy(args2, args);
-    int n = vsnprintf(NULL, 0, format, args2);
-    va_end(args2);
+    va_list args_copy;
+    va_copy(args_copy, args);
+    int32_t n = c_vprint(NULL, 0, format, args_copy);
+    va_end(args_copy);
 
-    char *buf = frame_alloc((uint64_t)n + 1);
-    vsnprintf(buf, n + 1, format, args);
-    return buf;
+    char *buffer = frame_alloc((uint64_t)n + 1);
+    c_vprint(buffer, n + 1, format, args);
+    return buffer;
 }
 
 char *frame_printf(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
+
     char *buf = frame_vprintf(format, args);
+
     va_end(args);
     return buf;
 }
