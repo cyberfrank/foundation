@@ -26,7 +26,19 @@ static inline const char *get_file_name(const char *path)
 
 static inline bool is_non_word(char c) 
 {
-    return !(isalnum(c) || c == '_');
+    if ((c >= 'A' && c <= 'Z') || 
+        (c >= 'a' && c <= 'z') || 
+        (c >= '0' && c <= '9') || 
+        c == '_')
+    {
+        return false;
+    }
+    if (c >= 0x80 && c < 0xc0)
+    {
+        // Multi-byte codepoint
+        return false;
+    }
+    return true;
 }
 
 // Check if a string has the starts with the given preamble.
